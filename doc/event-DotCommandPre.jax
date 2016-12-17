@@ -1,0 +1,112 @@
+*event-DotCommandPre.jax*	オートコマンドイベント 'DotCommandPre' を追加
+						Last change:17-Dec-2016.
+
+書いた人   : machakann <https://github.com/machakann>
+ライセンス : NYSL license
+          日本語 <http://www.kmonos.net/nysl/>
+          English (Unofficial) <http://www.kmonos.net/nysl/index.en.html>
+
+必須要件:	Vim 8.0 かそれ以降のバージョン
+
+==============================================================================
+CONTENTS				*event-DotCommandPre-contents*
+
+USAGE		|event-DotCommandPre-usage|
+  使用するために
+  開発者の方へ
+KEYMAPPINGS	|event-DotCommandPre-keymappings|
+AUTOCOMMANDS	|event-DotCommandPre-autocmd-events|
+
+==============================================================================
+USAGE					*event-DotCommandPre-usage*
+
+このプラグインはドットコマンド (|.|) の直前に呼び出されるオートコマンドイベン
+ト |DotCommandPre| を追加します。
+
+------------------------------------------------------------------------------
+
+使用するために~
+`.` キーにマッピングを定義するようなプラグインを使っていない場合は
+|<Plug>(event-DotCommandPre+Dot)| を使い vimrc に次の行を加えてください。
+>
+	nmap . <Plug>(event-DotCommandPre+Dot)
+<
+
+もし `.` キーにキーマッピングを定義するようなプラグインを使っている場合は
+|<Plug>(event-DotCommandPre)| を使います。例えばそのプラグインの定義するキーマ
+ッピングが `<Plug>(CustomDot)` であるとき、その前に
+|<Plug>(event-DotCommandPre)| を置きます。
+>
+	nmap . <Plug>(event-DotCommandPre)<Plug>(CustomDot)
+<
+repeat.vim (vimscript #2136) をご使用の場合は `<Plug>(RepeatDot)` の定義が遅延
+されているので、そのキーマッピングの存在を保証するために次の行を vimrc へ追加
+します。
+>
+	runtime autoload/repeat.vim
+	nmap . <Plug>(event-DotCommandPre)<Plug>(RepeatDot)
+<
+さらに、 `visualrepeat.vim` (vimscript #3848) プラグインをご使用の場合は似たよ
+うな設定をビジュアルモードにも定義します。
+>
+	xmap . <Plug>(event-DotCommandPre+Dot)
+<
+
+------------------------------------------------------------------------------
+
+開発者の方へ~
+|DotCommandPre| イベントを使って処理をフックすることができます。これは一種の
+ユーザー定義オートコマンドイベント (|User|) なので次のように使います。
+>
+	autocmd! User DotCommandPre echo 'Right before a dot command!'
+<
+Note: 処理中の副作用に注意してください。バッファを編集する、カーソルを動かす、
+のようなことが起こった場合ユーザーは予期せぬ結果を得るかもしれません。
+
+					*g:DotCommandPre*
+加えてドットコマンド直前のいくつかの情報がグローバル変数 |g:DotCommandPre| に
+格納されます。これは連想配列 |Dictionary| であり、使用可能なキーは以下のもので
+す。
+	`mode` : ドットコマンドが使用されたモードを表す一文字です。
+		'n' がノーマルモード |Normal-mode| を 'x' がビジュアルモード
+		|Visual-mode| を表します。ほとんどの場合 'n' であると思われま
+		すが、ユーザーが `visualrepeat.vim` (vimscript #3848) を使った
+		場合に 'x' になります。必ずしもこの場合を考慮する必要はありま
+		せん。
+	`curpos`: ドットコマンドが使用された時のカーソル位置を示すリスト
+		|list| です。 |getcurpos()| 関数の返り値と同じ形式を持ちます。
+	`view` : カレントウィンドウの表示状態を復元するための情報を持つ辞書
+		|Dictionary|を返します。これは |winsaveview()| 関数の返り値と
+		同じ形式をもち、 |winrestview()| 関数の引数として有効です。
+
+|g:DotCommandPre| はオートコマンドイベント |DotCommandPre| が使われたことを確
+かめるために使えます。
+>
+	if exists('g:DotCommandPre')
+		echo '"DotCommandPre" has been triggered!'
+		call winrestview(g:DotCommandPre.view)
+	endif
+<
+
+
+==============================================================================
+KEYMAPPINGS				*event-DotCommandPre-keymappings*
+
+<Plug>(event-DotCommandPre)		*<Plug>(event-DotCommandPre)*
+	|DotCommandPre| を呼び出すためのキーマッピングです。それ以外は何もしま
+	せん。
+
+<Plug>(event-DotCommandPre+Dot)		*<Plug>(event-DotCommandPre+Dot)*
+	|DotCommandPre| を呼び出すためのキーマッピングです。その後にドットコマ
+	ンド |.| を実行します。
+
+==============================================================================
+AUTOCMD-EVENTS				*event-DotCommandPre-autocmd-events*
+
+DotCommandPre				*DotCommandPre*
+	ドットコマンドが使用される直前。バッファを編集する、カーソルを移動
+	する、のようなユーザーの予期せぬ結果を引き起こしうることをするべきで
+	ない。
+
+==============================================================================
+vim:tw=78:ts=8:ft=help:norl:noet:
