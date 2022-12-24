@@ -10,17 +10,12 @@ if &compatible || exists("g:loaded_event_DotCommandPre")
 endif
 let g:loaded_event_DotCommandPre = 1
 
-let s:count = 0
-function! s:count() abort "{{{
-	return s:count ? s:count : ''
-endfunction
-"}}}
 
 " NOTE: Probably assigning register to dot command is not so popular.
 noremap <SID>(dot) .
 inoremap <SID>(dot) <Nop>
 cnoremap <SID>(dot) <Nop>
-noremap <expr> <SID>(count) <SID>count()
+noremap <expr> <SID>(count) event#DotCommandPre#count()
 inoremap <SID>(count) <Nop>
 cnoremap <SID>(count) <Nop>
 nnoremap <silent> <SID>(doautocmd) :<C-u>call event#DotCommandPre#doautocmd('n')<CR>

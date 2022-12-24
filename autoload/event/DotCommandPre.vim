@@ -1,5 +1,7 @@
 " DotCommandPre.vim: Add an autocmd event triggered before dot command
 
+let s:count = 0
+
 " Main function
 function! event#DotCommandPre#doautocmd(mode) abort "{{{
 	let s:count = a:mode ==# 'x' ? v:prevcount : v:count
@@ -18,6 +20,11 @@ function! event#DotCommandPre#doautocmd(mode) abort "{{{
 	if exists('#User#DotCommandPre')
 		doautocmd <nomodeline> User DotCommandPre
 	endif
+endfunction
+"}}}
+
+function! event#DotCommandPre#count() abort "{{{
+	return s:count ? s:count : ''
 endfunction
 "}}}
 
